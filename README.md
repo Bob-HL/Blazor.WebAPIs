@@ -8,7 +8,7 @@ This is a Blazor library for accessing APIs provided by web browser: IndexedDB, 
 # IndexedDB APIs
 It is based on [idb](https://github.com/jakearchibald/idb).
 
-Inherite from ```IndexedDb''':
+Inherite from ```IndexedDb```:
 ```CSharp
 public class DbContext : IndexedDb
 {
@@ -52,3 +52,17 @@ var toDos = await db.ToDos.GetAllAsync();
 - ClearAsync
 
 # LocalStorage
+Inject ```LocalStorage```:
+```CSharp
+[Inject] private LocalStorage localStorage { get; set; }
+```
+
+**APIs**
+```CSharp
+int Length
+string Key(int index)
+string GetItem(string keyName)
+void SetItem(string keyName, string keyValue)
+void RemoveItem(string keyName)
+void Clear()
+```
