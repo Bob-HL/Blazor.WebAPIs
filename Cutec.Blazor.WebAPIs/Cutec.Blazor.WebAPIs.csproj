@@ -3,11 +3,13 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
 	<TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
-	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<PackageProjectUrl>https://github.com/Bob-HL/Blazor.WebAPIs</PackageProjectUrl>
-	<PackageTags>Blazor IndexedDB</PackageTags>
+	<PackageTags>Blazor IndexedDB localStorage</PackageTags>
 	<PackageLicenseFile></PackageLicenseFile>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<Authors>Bob Lan</Authors>
+	<RepositoryUrl>https://github.com/Bob-HL/Blazor.WebAPIs</RepositoryUrl>
+	<Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
