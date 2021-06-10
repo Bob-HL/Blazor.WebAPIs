@@ -65,4 +65,7 @@ string GetItem(string keyName)
 void SetItem(string keyName, string keyValue)
 void RemoveItem(string keyName)
 void Clear()
+
+T GetItem<T>(string keyName) where T : class
+void SetItem<T>(string keyName, T item) where T : class
 ```
