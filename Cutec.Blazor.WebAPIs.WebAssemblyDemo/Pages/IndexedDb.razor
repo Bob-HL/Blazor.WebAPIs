@@ -1,0 +1,73 @@
+﻿@page "/indexeddb"
+@inject HttpClient Http
+
+<h1>IndexedDB</h1>
+
+<div class="row">
+<div class="col-sm-6 p-3 border rounded">
+	<h3>To Do List (1. GetAll)</h3>
+
+	<EditForm Model="toDo">
+	<div class="form-group border p-3">
+		<InputText @bind-Value="@toDo.Name" class="form-control" />
+	</div>
+	<div><button type="button" class="btn btn-primary" @onclick="SaveToDoAsync">Save (2. Put)</button></div>
+	</EditForm>
+
+	@if (toDos?.Count > 0)
+	{
+		<ul>
+			@foreach (var item in toDos)
+			{
+				<li class="@(item.IsCompleted == 1 ? "text-decoration-line-through" : "")">@item.Id @item.Name
+					<button type="button" class="btn btn-outline-primary" @onclick="@(() => ViewToDoAsync(item))">View (3. GetByKey)</button>
+					<button type="button" class="btn btn-outline-danger ml-2" @onclick="@(() => DeleteToDoAsync(item))">4. DeleteByKey</button>
+					@if (item.IsCompleted != 1)
+					{
+						<button type="button" class="btn btn-outline-warning ml-2" @onclick="@(() => MarkAsDoneAsync(item))">Done</button>
+					}
+				</li>
+			}
+		</ul>
+	}
+
+	<div>
+		 <button type="button" class="btn btn-outline-primary" @onclick="@GetToDoCountAsync">5. Count</button>
+		 <label>Count: @toDoCount</label>
+	</div>
+	<div>
+		 <button type="button" class="btn btn-outline-danger" @onclick="@ClearToDosAsync">6. Clear</button>
+		 <button type="button" class="btn btn-outline-primary" @onclick="@GetPendingToDosAsync">7. Get Not Completed Ones Only (GetAllByIndexValue)</button>
+	 </div>
+</div>
+
+<div class="col-sm-6 p-3 border rounded">
+	@if (tasks == null)
+	{
+		<div class="alert alert-info">
+			Uncomment DbContext.Tasks and increase options.Version in Program for demonstrating schema upgrade.
+		</div>
+	}
+	else
+	{
+	<h3>Tasks (8. Store&lt;T&gt;)</h3>
+
+	<EditForm Model="task">
+	<div class="form-group border p-3">
+		<InputText @bind-Value="@task.Name" class="form-control" />
+	</div>
+	<div><button type="button" class="btn btn-primary" @onclick="AddTaskAsync">Save (2. Put)</button></div>
+	</EditForm>
+
+	@if (tasks?.Count > 0)
+	{
+		<ul>
+			@foreach (var item in tasks)
+			{
+				<li>@item.Name</li>
+			}
+		</ul>
+	}	
+	}
+</div>
+</div>

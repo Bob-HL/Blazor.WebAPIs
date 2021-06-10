@@ -1,0 +1,22 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "removeComments": true,
+    "sourceMap": true,
+    "module": "commonjs",
+    "target": "es2015",
+    "lib": [ "es2016", "dom", "esnext.asynciterable" ],
+    "strict": true,
+    "alwaysStrict": true,
+    "preserveConstEnums": true
+  },
+  "include": [
+    "./Scripts/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "wwwroot"
+  ]
+}
