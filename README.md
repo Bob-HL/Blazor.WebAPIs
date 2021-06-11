@@ -3,12 +3,13 @@ This is a Blazor library for accessing APIs provided by web browser: IndexedDB, 
 
 ## To use the library
 1. Instal NuGet package: ```Cutec.Blazor.WebAPIs```.
-2. Add script reference to ```index.html```: ```<script src="_content/Cutec.Blazor.WebAPIs/Common.js"></script>```
+2. Add script reference to ```index.html```: ```<script src="_content/Cutec.Blazor.WebAPIs/All.js"></script>```
+3. Register services; ```builder.Services.AddBlazorWebAPIs();```. Alternatively, you can register the needed indivitial API, ex. ```builder.Services.AddWebStorage();```
  
 # IndexedDB APIs
 It is based on [idb](https://github.com/jakearchibald/idb).
 
-Inherite from ```IndexedDb```:
+Inherit from ```IndexedDb```:
 ```CSharp
 public class DbContext : IndexedDb
 {
@@ -69,3 +70,5 @@ void Clear()
 T GetItem<T>(string keyName) where T : class
 void SetItem<T>(string keyName, T item) where T : class
 ```
+# Geolocation
+Inject and use ```Geolocation```.

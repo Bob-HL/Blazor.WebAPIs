@@ -1,18 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Cutec.Blazor.WebAPIs
+﻿namespace Cutec.Blazor.WebAPIs
 {
-    public class Constant
+    internal class Constant
     {
-        public const string LoadJsCssFile = "__loadJsCssFile";
         public readonly static string ScriptPrefix = $"_content/{typeof(Constant).Namespace}/";
 
-        internal const string IndexedDbInitializer = "__cbw_idb.initIndexedDb";
-        internal const string IndexDbLoaded = "__cbw_idb_loaded";
-        internal const string IndexedDbAgentNamePrefix = "cbw_idb_";
+        #region Hard coded names must be same as in the *.ts files.
+        
+        public const string Prefix = "__cbw_";
+        public readonly static string JsAgent = $"{Prefix}js_";
+        internal readonly static string IndexedDbInitializer = $"{Prefix}idb.initIndexedDb";
+        internal readonly static string IndexDbLoaded = $"{Prefix}idb_loaded";
+        public readonly static string GeoLocation = $"{Prefix}geo";
+        
+        #endregion
+
+        internal readonly static string IndexedDbAgentNamePrefix = $"idb{Prefix}";
+
+        //#region API flag
+
+        //public const string Geolocation = nameof(Geolocation);
+        //public const string IndexedDb = nameof(IndexedDb);
+
+        //#endregion
     }
 }

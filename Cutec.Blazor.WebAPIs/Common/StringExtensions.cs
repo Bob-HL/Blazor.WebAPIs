@@ -1,9 +1,6 @@
-﻿using System.Security.Cryptography;
-using System.Text;
-
-namespace Cutec.Blazor.WebAPIs
+﻿namespace Cutec.Blazor.WebAPIs
 {
-    public static class StringExtensions
+    internal static class StringExtensions
     {
         public static string ToCamelCase(this string word)
         {

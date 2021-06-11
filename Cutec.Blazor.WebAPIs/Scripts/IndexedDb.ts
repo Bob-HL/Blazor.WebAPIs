@@ -180,4 +180,7 @@ enum DbEvent {
 }
 
 window["__cbw_idb"] = new IndexedDbInitializer();
-window["__cbw_idb_loaded"] = () => true;
+
+if (window['__cbw_js_']) {
+    window['__cbw_js_'].setLoadedFlag('IndexedDb');
+}

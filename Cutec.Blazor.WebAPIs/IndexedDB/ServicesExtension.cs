@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Cutec.Blazor.WebAPIs
 {
-    public static class ServicesExtension
+    public static partial class ServicesExtension
     {
         public static IServiceCollection AddIndexedDB<TIndexedDb>(this IServiceCollection services) where TIndexedDb: IndexedDb
         {
@@ -30,7 +30,7 @@ namespace Cutec.Blazor.WebAPIs
 
             try
             {
-                loaded = await js.InvokeAsync<bool>(Constant.IndexDbLoaded);
+                loaded = await js.InvokeAsync<bool>($"{Constant.JsAgent}.getLoadedFlag", nameof(IndexedDb));
             }
             catch
             {
@@ -39,7 +39,7 @@ namespace Cutec.Blazor.WebAPIs
             
             if (!loaded)
             {
-                await js.InvokeVoidAsync(Constant.LoadJsCssFile, $"{Constant.ScriptPrefix}IndexedDb.js", "js");
+                await js.InvokeVoidAsync($"{Constant.JsAgent}.loadJsCssFile", $"{Constant.ScriptPrefix}IndexedDb.js", "js");
             }
 
             await db.InitializeAsync(options, js);

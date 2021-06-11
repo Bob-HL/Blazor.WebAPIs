@@ -3,8 +3,10 @@ var webpack = require("webpack");
 
 module.exports = {
     entry: {
+        'All': './Scripts/All.ts',
+        'Geolocation': './Scripts/Geolocation.ts',
         'IndexedDb': './Scripts/IndexedDb.ts',
-        'Common': './Scripts/Common.ts'
+        'JsAgent': './Scripts/JsAgent.ts'
     },
     mode: 'development',
     output: {
