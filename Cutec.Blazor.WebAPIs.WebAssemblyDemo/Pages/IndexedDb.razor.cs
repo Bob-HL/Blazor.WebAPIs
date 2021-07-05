@@ -89,5 +89,10 @@ namespace Cutec.Blazor.WebAPIs.WebAssemblyDemo.Pages
             task.Name = null;
             tasks = await tasksStore.GetAllAsync();
         }
+
+        private async Task GetAllInKeyRangeAsync()
+        {
+            toDos = await db.ToDos.GetAllAsync(null, false, 4, true, 2);
+        }
     }
 }

@@ -27,9 +27,42 @@ namespace Cutec.Blazor.WebAPIs
             return data;
         }
 
-        public async Task<List<T>> GetAllAsync()
+
+        // Gets the value of the first record in a store matching the key range query. Refer GetAllAsync for key range explanation.
+        public async Task<T> GetByKeyRangeAsync(object lowerKey = null, bool lowerOpen = false, object upperKey = null, bool upperOpen = false)
         {
-            var data = await js.InvokeAsync<List<T>>($"{indexedDbAgentName}.getAll", Name);
+            T data = await js.InvokeAsync<T>($"{indexedDbAgentName}.getByKeyRange", Name, lowerKey, lowerOpen, upperKey, upperOpen);
+            return data;
+        }
+
+        // Gets the value of the first record in a store matching the index value range query. Refer GetAllAsync for range explanation.
+        public async Task<T> GetFromIndexAsync<TIndex>(Expression<Func<T, TIndex>> indexSelector, object lowerKey = null, bool lowerOpen = false, object upperKey = null, bool upperOpen = false)
+        {
+            MemberExpression member = indexSelector.Body as MemberExpression;
+            var indexName = member.Member.Name.ToCamelCase();
+            T data = await js.InvokeAsync<T>($"{indexedDbAgentName}.getFromIndex", Name, indexName, lowerKey, lowerOpen, upperKey, upperOpen);
+            return data;
+        }
+
+        /// <summary>
+        /// Gets all values in a store that match the key range. Ref: IDBKeyRange - https://developer.mozilla.org/en-US/docs/Web/API/IDBKeyRange.
+        /// </summary>
+        /// <param name="lowerKey">The lower value of the key range, including undefined.</param>
+        /// <param name="lowerOpen">Matches those with key equal to lowerKey if lowerOpen is false.</param>
+        /// <param name="upperKey">The upper value of the key range.</param>
+        /// <param name="upperOpen">Matches those with key equal to upperKey if upperOpen is false.</param>
+        /// <param name="count">Maximum number of values to return.</param>
+        /// <returns>All items in a store that match the query.</returns>
+        public async Task<List<T>> GetAllAsync(object lowerKey = null, bool lowerOpen = false, object upperKey = null, bool upperOpen = false, int? count = null)
+        {
+            var data = await js.InvokeAsync<List<T>>($"{indexedDbAgentName}.getAll", Name, lowerKey, lowerOpen, upperKey, upperOpen, count);
+            return data;
+        }
+        public async Task<List<T>> GetAllFromIndexAsync<TIndex>(Expression<Func<T, TIndex>> indexSelector, object lowerKey = null, bool lowerOpen = false, object upperKey = null, bool upperOpen = false, int? count = null)
+        {
+            MemberExpression member = indexSelector.Body as MemberExpression;
+            var indexName = member.Member.Name.ToCamelCase();
+            var data = await js.InvokeAsync<List<T>>($"{indexedDbAgentName}.getAllFromIndex", Name, indexName, lowerKey, lowerOpen, upperKey, upperOpen, count);
             return data;
         }
 
@@ -41,18 +74,33 @@ namespace Cutec.Blazor.WebAPIs
             return data;
         }
 
-        public async Task<List<TIndex>> GetAllKeysByIndexValueAsync<TIndex>(Expression<Func<T, TIndex>> indexSelector)
+        public async Task<List<TKey>> GetAllKeysAsync<TKey>(object lowerKey = null, bool lowerOpen = false, object upperKey = null, bool upperOpen = false, int? count = null)
         {
-            MemberExpression member = indexSelector.Body as MemberExpression;
-            //await js.InvokeVoidAsync("console.log", indexSelector.Body.ToString());
-            var indexName = member.Member.Name.ToCamelCase();
-            var keys = await js.InvokeAsync<List<TIndex>>($"{indexedDbAgentName}.getAllKeysByIndexValue", Name, indexName);
+            var keys = await js.InvokeAsync<List<TKey>>($"{indexedDbAgentName}.getAllKeys", Name, lowerKey, lowerOpen, upperKey, upperOpen, count);
             return keys;
         }
 
-        public async Task<List<TKey>> GetAllKeysAsync<TKey>()
+        public async Task<List<TKey>> GetAllKeysFromIndexAsync<TIndex, TKey>(Expression<Func<T, TIndex>> indexSelector, object lowerKey = null, bool lowerOpen = false, object upperKey = null, bool upperOpen = false, int? count = null)
         {
-            var keys = await js.InvokeAsync<List<TKey>>($"{indexedDbAgentName}.getAllKeys", Name);
+            MemberExpression member = indexSelector.Body as MemberExpression;
+            var indexName = member.Member.Name.ToCamelCase();
+            var keys = await js.InvokeAsync<List<TKey>>($"{indexedDbAgentName}.getAllKeysFromIndex", Name, indexName, lowerKey, lowerOpen, upperKey, upperOpen, count);
+            return keys;
+        }
+
+        public async Task<List<TKey>> GetAllKeysByIndexValueAsync<TIndex, TKey>(Expression<Func<T, TIndex>> indexSelector, TIndex indexValue)
+        {
+            MemberExpression member = indexSelector.Body as MemberExpression;
+            var indexName = member.Member.Name.ToCamelCase();
+            var keys = await js.InvokeAsync<List<TKey>>($"{indexedDbAgentName}.getAllKeysByIndexValue", Name, indexName, indexValue);
+            return keys;
+        }
+
+        public async Task<List<TIndex>> GetAllIndexValuesAsync<TIndex>(Expression<Func<T, TIndex>> indexSelector)
+        {
+            MemberExpression member = indexSelector.Body as MemberExpression;
+            var indexName = member.Member.Name.ToCamelCase();
+            var keys = await js.InvokeAsync<List<TIndex>>($"{indexedDbAgentName}.getAllIndexValues", Name, indexName);
             return keys;
         }
 
@@ -91,6 +139,11 @@ namespace Cutec.Blazor.WebAPIs
         public async Task DeleteByKeyAsync(object key)
         {
             await js.InvokeAsync<T>($"{indexedDbAgentName}.delete", Name, key);
+        }
+
+        public async Task DeleteByKeyListAsync<TKey>(List<TKey> keys)
+        {
+            await js.InvokeAsync<T>($"{indexedDbAgentName}.delete", Name, keys);
         }
 
         public async Task ClearAsync()

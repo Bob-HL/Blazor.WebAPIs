@@ -87,10 +87,51 @@ class IndexedDbAgent {
         return data;
     }
 
-    public getAll = async (storeName: string): Promise<any> => {
+    public getByKeyRange = async (storeName: string, lowerKey: any, lowerOpen: boolean, upperKey: any, upperOpen: boolean): Promise<any> => {
+        let query = this.getQuery(lowerKey, lowerOpen, upperKey, upperOpen);
         const store = this.db.transaction(storeName, 'readonly').objectStore(storeName);
-        const data = await store.getAll();
+        const data = await store.get(query);
         return data;
+    }
+
+
+    public getFromIndex = async (storeName: string, indexName: string, lowerKey: any, lowerOpen: boolean, upperKey: any, upperOpen: boolean): Promise<any> => {
+        let query = this.getQuery(lowerKey, lowerOpen, upperKey, upperOpen);
+        const store = this.db.transaction(storeName, 'readonly').objectStore(storeName);
+        const data = await store.get(indexName, query);
+        return data;
+    }
+
+    public getAll = async (storeName: string, lowerKey: any, lowerOpen: boolean, upperKey: any, upperOpen: boolean, count?: number): Promise<any> => {
+        let query = this.getQuery(lowerKey, lowerOpen, upperKey, upperOpen);
+        const store = this.db.transaction(storeName, 'readonly').objectStore(storeName);
+        const data = await store.getAll(query, count);
+        return data;
+    }
+
+    private getQuery = (lowerKey: any, lowerOpen: boolean, upperKey: any, upperOpen: boolean): IDBKeyRange | null => {
+        let query: IDBKeyRange | null = null;
+        let hasLowerBound = lowerKey !== null && lowerKey !== 'undefined';
+        let hasUpperBound = upperKey !== null && upperKey !== 'undefined';
+
+        if (hasLowerBound) {
+            if (hasUpperBound) {
+                query = IDBKeyRange.bound(lowerKey, upperKey, lowerOpen, upperOpen);
+            }
+            else {
+                query = IDBKeyRange.lowerBound(lowerKey, lowerOpen);
+            }
+        }
+        else if (hasUpperBound) {
+            query = IDBKeyRange.upperBound(upperKey, upperOpen);
+        }
+
+        return query;
+    }
+
+    public getAllFromIndex = async (storeName: string, indexName: string, lowerKey: any, lowerOpen: boolean, upperKey: any, upperOpen: boolean, count?: number): Promise<any[]> => {
+        let query = this.getQuery(lowerKey, lowerOpen, upperKey, upperOpen);
+        return this.db.getAllFromIndex(storeName, indexName, query, count);
     }
 
     public getAllByIndexValue = async (storeName: string, indexName: string, indexValue: any): Promise<any[]> => {
@@ -101,9 +142,33 @@ class IndexedDbAgent {
         return this.db.getAllKeysFromIndex(storeName, indexName, indexValue);
     }
 
-    public getAllKeys = async (storeName: string): Promise<any[]> => {
+    public getAllKeys = async (storeName: string, lowerKey: any, lowerOpen: boolean, upperKey: any, upperOpen: boolean, count?: number): Promise<any[]> => {
+        let query = this.getQuery(lowerKey, lowerOpen, upperKey, upperOpen);
         const store = this.db.transaction(storeName, 'readonly').objectStore(storeName);
-        const keys = await store.getAllKeys();
+        const keys = await store.getAllKeys(query, count);
+        return keys;
+    }
+
+    public getAllKeysFromIndex = async (storeName: string, indexName: string, lowerKey: any, lowerOpen: boolean, upperKey: any, upperOpen: boolean, count?: number): Promise<any[]> => {
+        let query = this.getQuery(lowerKey, lowerOpen, upperKey, upperOpen);
+        const keys = this.db.getAllKeysFromIndex(storeName, indexName, query, count);
+        return keys;
+    }
+
+    public getAllIndexValues = async (storeName: string, indexName: string): Promise<any[]> => {
+        let cursor = await this.db.transaction(storeName).store.index(indexName).openKeyCursor();
+        let keys: any[] = [];
+
+        while (cursor) {
+            let key = cursor.key;
+
+            if (keys.indexOf(key) < 0) {
+                keys.push(key);
+            }
+
+            cursor = await cursor.continue();
+        }
+
         return keys;
     }
 
@@ -155,7 +220,6 @@ class IndexedDbAgent {
 
 class IndexedDbInitializer {
     public async initIndexedDb(options: IOpenDbOptions, indexedDb: IJSInvokable): Promise<void> {
-        console.log(indexedDb);
         const agent = new IndexedDbAgent(options, indexedDb);
         let db = await openDB(options.name, options.version, agent);
 

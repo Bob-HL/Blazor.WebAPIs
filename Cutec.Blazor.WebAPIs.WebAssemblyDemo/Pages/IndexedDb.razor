@@ -35,10 +35,11 @@
 		 <button type="button" class="btn btn-outline-primary" @onclick="@GetToDoCountAsync">5. Count</button>
 		 <label>Count: @toDoCount</label>
 	</div>
-	<div>
-		 <button type="button" class="btn btn-outline-danger" @onclick="@ClearToDosAsync">6. Clear</button>
-		 <button type="button" class="btn btn-outline-primary" @onclick="@GetPendingToDosAsync">7. Get Not Completed Ones Only (GetAllByIndexValue)</button>
-	 </div>
+    <div>
+        <button type="button" class="btn btn-outline-danger" @onclick="@ClearToDosAsync">6. Clear</button>
+        <button type="button" class="btn btn-outline-primary" @onclick="@GetPendingToDosAsync">7. Get Not Completed Ones Only (GetAllByIndexValue)</button>
+        <button type="button" class="btn btn-outline-info" @onclick="GetAllInKeyRangeAsync">8. Show all with Id &le;= 3</button>
+    </div>
 </div>
 
 <div class="col-sm-6 p-3 border rounded">
@@ -50,7 +51,7 @@
 	}
 	else
 	{
-	<h3>Tasks (8. Store&lt;T&gt;)</h3>
+	<h3>Tasks (9. Store&lt;T&gt;)</h3>
 
 	<EditForm Model="task">
 	<div class="form-group border p-3">
