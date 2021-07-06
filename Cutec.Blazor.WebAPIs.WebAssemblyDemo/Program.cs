@@ -28,7 +28,7 @@ namespace Cutec.Blazor.WebAPIs.WebAssemblyDemo
                 options.Name = "Test";
 
                 // increase the Version number and uncomment DbContext.Tasks to test schema upgrade
-                options.Version = 2;
+                options.Version = 3;
             });
 
             await host.RunAsync();

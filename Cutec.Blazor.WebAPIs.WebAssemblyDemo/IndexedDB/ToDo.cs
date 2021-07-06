@@ -10,5 +10,8 @@
         // Indexed DB doesn't support boolean data type index.
         [Index]
         public int IsCompleted { get; set; }
+
+        [Index]
+        public int Priority { get; set; }
     }
 }

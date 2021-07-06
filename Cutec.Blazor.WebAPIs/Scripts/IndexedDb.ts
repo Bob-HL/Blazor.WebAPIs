@@ -97,8 +97,7 @@ class IndexedDbAgent {
 
     public getFromIndex = async (storeName: string, indexName: string, lowerKey: any, lowerOpen: boolean, upperKey: any, upperOpen: boolean): Promise<any> => {
         let query = this.getQuery(lowerKey, lowerOpen, upperKey, upperOpen);
-        const store = this.db.transaction(storeName, 'readonly').objectStore(storeName);
-        const data = await store.get(indexName, query);
+        const data = await this.db.getFromIndex(storeName, indexName, query);
         return data;
     }
 

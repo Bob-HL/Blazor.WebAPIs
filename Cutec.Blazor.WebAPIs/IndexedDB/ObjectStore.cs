@@ -29,14 +29,14 @@ namespace Cutec.Blazor.WebAPIs
 
 
         // Gets the value of the first record in a store matching the key range query. Refer GetAllAsync for key range explanation.
-        public async Task<T> GetByKeyRangeAsync(object lowerKey = null, bool lowerOpen = false, object upperKey = null, bool upperOpen = false)
+        public async Task<T> GetFirstByKeyRangeAsync(object lowerKey = null, bool lowerOpen = false, object upperKey = null, bool upperOpen = false)
         {
             T data = await js.InvokeAsync<T>($"{indexedDbAgentName}.getByKeyRange", Name, lowerKey, lowerOpen, upperKey, upperOpen);
             return data;
         }
 
         // Gets the value of the first record in a store matching the index value range query. Refer GetAllAsync for range explanation.
-        public async Task<T> GetFromIndexAsync<TIndex>(Expression<Func<T, TIndex>> indexSelector, object lowerKey = null, bool lowerOpen = false, object upperKey = null, bool upperOpen = false)
+        public async Task<T> GetFirstFromIndexAsync<TIndex>(Expression<Func<T, TIndex>> indexSelector, object lowerKey = null, bool lowerOpen = false, object upperKey = null, bool upperOpen = false)
         {
             MemberExpression member = indexSelector.Body as MemberExpression;
             var indexName = member.Member.Name.ToCamelCase();

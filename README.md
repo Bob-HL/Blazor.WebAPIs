@@ -40,8 +40,10 @@ var toDos = await db.ToDos.GetAllAsync();
 ```
 
 **Retrieving**
-- GetByKeyAsync, GetAllAsync, GetAllByIndexValueAsync
-- GetAllKeysByIndexValueAsync, GetAllKeysAsync
+- GetByKeyAsync, GetFirstByKeyRangeAsync, GetFirstFromIndexAsync
+- GetAllAsync, GetAllFromIndexAsync, GetAllByIndexValueAsync
+- GetAllKeysAsync, GetAllKeysFromIndexAsync, GetAllKeysByIndexValueAsync
+- GetAllIndexValuesAsync
 - CountAsync
 
 **Update**
@@ -50,6 +52,7 @@ var toDos = await db.ToDos.GetAllAsync();
 
 **Delete**
 - DeleteByKeyAsync
+- DeleteByKeyListAsync
 - ClearAsync
 
 # LocalStorage
