@@ -94,6 +94,20 @@ class IndexedDbAgent {
         return data;
     }
 
+    public getAllByKeys = async (storeName: string, keys: any[]): Promise<any> => {
+        const store = this.db.transaction(storeName, 'readonly').objectStore(storeName);
+        let data: any[] = [];
+
+        for (const key of keys) {
+            const item = await store.get(key);
+
+            if (item) {
+                data.push(item);
+            }
+        }
+
+        return data;
+    }
 
     public getFromIndex = async (storeName: string, indexName: string, lowerKey: any, lowerOpen: boolean, upperKey: any, upperOpen: boolean): Promise<any> => {
         let query = this.getQuery(lowerKey, lowerOpen, upperKey, upperOpen);

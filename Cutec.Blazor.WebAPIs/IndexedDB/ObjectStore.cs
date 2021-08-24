@@ -58,6 +58,13 @@ namespace Cutec.Blazor.WebAPIs
             var data = await js.InvokeAsync<List<T>>($"{indexedDbAgentName}.getAll", Name, lowerKey, lowerOpen, upperKey, upperOpen, count);
             return data;
         }
+
+        public async Task<List<T>> GetAllByKeyListAsync(List<object> keys)
+        {
+            var data = await js.InvokeAsync<List<T>>($"{indexedDbAgentName}.getAllByKeys", Name, keys);
+            return data;
+        }
+
         public async Task<List<T>> GetAllFromIndexAsync<TIndex>(Expression<Func<T, TIndex>> indexSelector, object lowerKey = null, bool lowerOpen = false, object upperKey = null, bool upperOpen = false, int? count = null)
         {
             MemberExpression member = indexSelector.Body as MemberExpression;

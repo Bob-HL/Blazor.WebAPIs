@@ -88,7 +88,7 @@ namespace Cutec.Blazor.WebAPIs
                     var objectStore = Activator.CreateInstance(objectStoreType, prop.Name, js, options.IndexedDbAgentName);
                     prop.SetValue(this, objectStore);
 
-                    typePropertieMaps.Add(Tuple.Create(entityTypes[0], prop.GetValue(this)));
+                    typePropertieMaps.Add(Tuple.Create(entityTypes[0], objectStore));
 
                     if (generateSchema)
                     {
@@ -152,5 +152,19 @@ namespace Cutec.Blazor.WebAPIs
         }
 
         #endregion
+
+        public async Task ClearDbAsync(string[] excludeStores = null)
+        {
+            var objectStoreGenericType = typeof(ObjectStore<>);
+            var properties = GetType().GetProperties();
+
+            foreach (var prop in properties)
+            {
+                if (prop.PropertyType.IsGenericType && prop.PropertyType.GetGenericTypeDefinition() == objectStoreGenericType && excludeStores?.Contains(prop.Name) != true)
+                {
+                    await js.InvokeVoidAsync($"{options.IndexedDbAgentName}.clear", prop.Name);
+                }
+            }
+        }
     }
 }
