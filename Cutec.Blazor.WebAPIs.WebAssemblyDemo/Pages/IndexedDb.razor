@@ -40,6 +40,22 @@
         <button type="button" class="btn btn-outline-primary" @onclick="@GetPendingToDosAsync">Get Not Completed Ones Only (GetAllByIndexValue)</button>
         <button type="button" class="btn btn-outline-info" @onclick="GetAllInKeyRangeAsync">Show all with Id &le;= 3</button>
     </div>
+
+	<div class="mt-3">
+	@if (getKeyEditContext != null)
+	{
+		<EditForm EditContext="getKeyEditContext">
+		Key: <InputNumber @bind-Value="@getKeyModel.Id" class="form-control" />
+		</EditForm>
+		<button type="button" class="btn btn-outline-primary" @onclick="@GetFirstKeyAsync">Check if key exists (GetFirstKeyAsync)</button>
+	}
+		@if (displayExistingKey)
+		{
+			<div class="alert alert-info">
+				Key "@getKeyModel.Id" @(existingKey != null ? "exists." : "does not exists.")
+		    </div>
+		}
+	</div>
 </div>
 
 <div class="col-sm-6 p-3 border rounded">

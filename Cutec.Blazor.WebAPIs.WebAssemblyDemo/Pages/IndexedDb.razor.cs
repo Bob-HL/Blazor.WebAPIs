@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 namespace Cutec.Blazor.WebAPIs.WebAssemblyDemo.Pages
@@ -16,6 +16,11 @@ namespace Cutec.Blazor.WebAPIs.WebAssemblyDemo.Pages
         private int? toDoCount;
         private TaskItem task = new TaskItem();
         private List<TaskItem> tasks;
+
+        private EditContext getKeyEditContext;
+        private ToDo getKeyModel = new ToDo();
+        private object existingKey;
+        private bool displayExistingKey;
 
         protected override async Task OnInitializedAsync()
         {
@@ -32,6 +37,9 @@ namespace Cutec.Blazor.WebAPIs.WebAssemblyDemo.Pages
             {
                 tasks = await tasksStore.GetAllAsync();
             }
+
+            getKeyEditContext = new EditContext(getKeyModel);
+            getKeyEditContext.OnFieldChanged += (s, e) => displayExistingKey = false;
 
             await base.OnInitializedAsync();
         }
@@ -94,6 +102,12 @@ namespace Cutec.Blazor.WebAPIs.WebAssemblyDemo.Pages
         private async Task GetAllInKeyRangeAsync()
         {
             toDos = await db.ToDos.GetAllAsync(null, false, 4, true, 2);
+        }
+
+        private async Task GetFirstKeyAsync()
+        {
+            existingKey = await db.ToDos.GetFirstKeyAsync(getKeyModel.Id);
+            displayExistingKey = true;
         }
 
         #region Run Tests

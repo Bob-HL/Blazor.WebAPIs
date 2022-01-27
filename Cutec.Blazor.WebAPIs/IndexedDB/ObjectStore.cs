@@ -27,6 +27,7 @@ namespace Cutec.Blazor.WebAPIs
             return data;
         }
 
+        #region Get object/entity
 
         // Gets the value of the first record in a store matching the key range query. Refer GetAllAsync for key range explanation.
         public async Task<T> GetFirstByKeyRangeAsync(object lowerKey = null, bool lowerOpen = false, object upperKey = null, bool upperOpen = false)
@@ -81,6 +82,17 @@ namespace Cutec.Blazor.WebAPIs
             return data;
         }
 
+        #endregion
+
+        #region Get Key(s)
+
+        // We have to use object at this stage due to returning null for value type is currently supported: https://github.com/dotnet/aspnetcore/issues/30366.
+        public async Task<object> GetFirstKeyAsync(object lowerKey = null, bool lowerOpen = false, object upperKey = null, bool upperOpen = false)
+        {
+            var key = await js.InvokeAsync<object>($"{indexedDbAgentName}.getFirstKey", Name, lowerKey, lowerOpen, upperKey, upperOpen);
+            return key;
+        }
+
         public async Task<List<TKey>> GetAllKeysAsync<TKey>(object lowerKey = null, bool lowerOpen = false, object upperKey = null, bool upperOpen = false, int? count = null)
         {
             var keys = await js.InvokeAsync<List<TKey>>($"{indexedDbAgentName}.getAllKeys", Name, lowerKey, lowerOpen, upperKey, upperOpen, count);
@@ -102,6 +114,8 @@ namespace Cutec.Blazor.WebAPIs
             var keys = await js.InvokeAsync<List<TKey>>($"{indexedDbAgentName}.getAllKeysByIndexValue", Name, indexName, indexValue);
             return keys;
         }
+
+        #endregion
 
         public async Task<List<TIndex>> GetAllIndexValuesAsync<TIndex>(Expression<Func<T, TIndex>> indexSelector)
         {

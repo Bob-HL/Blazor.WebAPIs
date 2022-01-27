@@ -155,6 +155,19 @@ class IndexedDbAgent {
         return this.db.getAllKeysFromIndex(storeName, indexName, indexValue);
     }
 
+    public getFirstKey = async (storeName: string, lowerKey: any, lowerOpen: boolean, upperKey: any, upperOpen: boolean): Promise<any[]> => {
+        const store = this.db.transaction(storeName, 'readonly').objectStore(storeName);
+
+        if (lowerKey != null && !lowerOpen && upperKey === null && !upperOpen) {
+            const key = await store.getKey(lowerKey);
+            return key;
+        }
+
+        let query = this.getQuery(lowerKey, lowerOpen, upperKey, upperOpen);
+        const key = await store.getKey(query);
+        return key;
+    }
+
     public getAllKeys = async (storeName: string, lowerKey: any, lowerOpen: boolean, upperKey: any, upperOpen: boolean, count?: number): Promise<any[]> => {
         let query = this.getQuery(lowerKey, lowerOpen, upperKey, upperOpen);
         const store = this.db.transaction(storeName, 'readonly').objectStore(storeName);
