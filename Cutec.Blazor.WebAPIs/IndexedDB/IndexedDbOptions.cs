@@ -26,7 +26,10 @@ namespace Cutec.Blazor.WebAPIs
 
         public string IndexedDbAgentName { get; protected set; }
 
-        public int Version { get; set; } = 1;
+        /// <summary>
+        /// Set a higher Version if there are changes (store, key or index) required an upgrade. Set Version to 0 to open current version of DB. 
+        /// </summary>
+        public int Version { get; set; } = 0;
 
         [JsonIgnore]
         public List<ObjectStoreSchema> Schema { get; set; }

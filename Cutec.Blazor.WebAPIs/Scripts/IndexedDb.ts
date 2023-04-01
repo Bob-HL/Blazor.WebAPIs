@@ -11,19 +11,22 @@ class IndexedDbAgent {
 
     public db: any;
 
-    public upgrade = (db, oldVersion, newVersion, transaction) => {
+    public upgrade = (db, oldVersion, newVersion, transaction, event) => {
         const schema = this.indexedDb.invokeMethod("GetSchema", oldVersion, newVersion);
 
         if (schema && schema.length > 0) {
             for (let objectStore of schema) {
                 // if Key is changed, re-create the ObjectStore - data will be lost!!!
-                if (db.objectStoreNames.contains(objectStore.name) && (transaction.objectStore(objectStore.name).keyPath != objectStore.keyPath)) {
+                if (db.objectStoreNames.contains(objectStore.name) && (transaction.objectStore(objectStore.name).keyPath != objectStore.keyPath || transaction.objectStore(objectStore.name).autoIncrement != objectStore.autoIncrement)) {
                     db.deleteObjectStore(objectStore.name);
                 }
 
                 // add ObjectStore
                 if (!db.objectStoreNames.contains(objectStore.name)) {
-                    var params = objectStore.keyPath ? { keyPath: objectStore.keyPath } : { autoIncrement: objectStore.autoIncrement };
+                    var params = {
+                        keyPath: objectStore.keyPath,
+                        autoIncrement: objectStore.autoIncrement
+                    };
                     const store = db.createObjectStore(objectStore.name, params);
 
                     if (objectStore.indexes) {
@@ -65,12 +68,12 @@ class IndexedDbAgent {
         }
     }
 
-    public blocked = () => {
-        this.indexedDb.invokeMethod("OnDbEvent", DbEvent.Blocked);
+    public blocked = (currentVersion, blockedVersion) => {
+        this.indexedDb.invokeMethod("OnDbEvent", DbEvent.Blocked, currentVersion, blockedVersion);
     }
 
-    public blocking = () => {
-        this.indexedDb.invokeMethod("OnDbEvent", DbEvent.Blocking);
+    public blocking = (currentVersion, blockedVersion, event) => {
+        this.indexedDb.invokeMethod("OnDbEvent", DbEvent.Blocking, currentVersion, blockedVersion);
     }
 
     public terminated = () => {
@@ -204,19 +207,38 @@ class IndexedDbAgent {
 
     public put = async (storeName: string, data: any): Promise<any> => {
         const tx = this.db.transaction(storeName, 'readwrite');
+        const store = tx.store;
+
+        // to avoid serialize large object, we only return the key property.
+        let keys: any;
 
         if (Array.isArray(data)) {
-            const store = tx.store;
+            keys = [];
 
             for (const item of data) {
-                store.put(item);
+                if (store.autoIncrement && !item[store.keyPath]) {
+                    delete item[store.keyPath];
+                }
+
+                const key = await store.put(item);
+                let keyItem = {};
+                 keyItem[store.keyPath] = key;
+                 keys.push(keyItem);
             }
         }
         else {
-            tx.store.put(data);
+            if (store.autoIncrement && !data[store.keyPath]) {
+                // delete the key if is 0, so it will be generated.
+                delete data[store.keyPath];
+            }
+
+            const key = await store.put(data);
+            keys = {};
+            keys[store.keyPath] = key;
         }
 
         await tx.done;
+        return keys;
     }
 
     public delete = async (storeName: string, key: any): Promise<any> => {
@@ -241,18 +263,31 @@ class IndexedDbAgent {
         return tx.complete;
     }
 
+    public close = () => {
+        this.db.close();
+    }
+
     //#endregion
 }
 
 class IndexedDbInitializer {
-    public async initIndexedDb(options: IOpenDbOptions, indexedDb: IJSInvokable): Promise<void> {
+    public async initIndexedDb(options: IOpenDbOptions, indexedDb: IJSInvokable): Promise<INumberValue> {
         const agent = new IndexedDbAgent(options, indexedDb);
-        let db = await openDB(options.name, options.version, agent);
+        let version = options.version ? options.version : undefined;
+        let db = await openDB(options.name, version, agent);
 
         if (db) {
             agent.db = db;
             window[options.indexedDbAgentName] = agent;
+            return { value: db.version };
         }
+
+        return { value: 0 };
+    }
+
+    public async deleteIndexedDb(options: IOpenDbOptions, indexedDb: IJSInvokable): Promise<void> {
+        const agent = new IndexedDbAgent(options, indexedDb);
+        await deleteDB(options.name, agent);
     }
 }
 
@@ -261,6 +296,10 @@ interface IOpenDbOptions {
     version: number;
     indexedDbAgentName: string;
     schemaHash: string;
+}
+
+interface INumberValue {
+    value: number;
 }
 
 enum DbEvent {

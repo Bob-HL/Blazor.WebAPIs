@@ -1,5 +1,6 @@
 ﻿namespace Cutec.Blazor.WebAPIs.WebAssemblyDemo
 {
+    [AutoIncrement]
     public class ToDo
     {
         [Key]

@@ -1,8 +1,9 @@
-﻿using Cutec.Blazor.WebAPIs;
-using Microsoft.JSInterop;
+﻿using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Cutec.Blazor.WebAPIs
@@ -11,12 +12,14 @@ namespace Cutec.Blazor.WebAPIs
     {
         private readonly IJSRuntime js;
         private readonly string indexedDbAgentName;
+        private readonly PropertyInfo autoKeyProp;
 
-        public ObjectStore(string name, IJSRuntime js, string indexedDbAgentName)
+        public ObjectStore(string name, IJSRuntime js, string indexedDbAgentName, PropertyInfo autoKeyProp)
         {
             Name = name;
             this.js = js;
             this.indexedDbAgentName = indexedDbAgentName;
+            this.autoKeyProp = autoKeyProp;
         }
 
         public string Name { get; set; }
@@ -140,7 +143,12 @@ namespace Cutec.Blazor.WebAPIs
         {
             if (data != null)
             {
-                await js.InvokeAsync<T>($"{indexedDbAgentName}.put", Name, data);
+                T savedItem = await js.InvokeAsync<T>($"{indexedDbAgentName}.put", Name, data);
+                
+                if (autoKeyProp != null)
+                {
+                    autoKeyProp.SetValue(data, autoKeyProp.GetValue(savedItem));
+                }
             }
         }
 
@@ -148,7 +156,15 @@ namespace Cutec.Blazor.WebAPIs
         {
             if (data != null && data.Count > 0)
             {
-                await js.InvokeAsync<T>($"{indexedDbAgentName}.put", Name, data);
+                var savedItems = await js.InvokeAsync<List<T>>($"{indexedDbAgentName}.put", Name, data);
+
+                if (autoKeyProp != null)
+                {
+                    for (int i = 0; i < data.Count; i++)
+                    {
+                        autoKeyProp.SetValue(data[i], autoKeyProp.GetValue(savedItems[i]));
+                    }
+                }
             }
         }
 

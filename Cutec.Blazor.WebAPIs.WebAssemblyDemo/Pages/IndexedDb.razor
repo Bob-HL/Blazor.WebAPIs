@@ -92,6 +92,8 @@
 <div>
     <button type="button" class="btn btn-primary" @onclick="RunTestsAsync">Run Tests</button>
 
+	<button type="button" class="btn btn-outline-danger ms-4" @onclick="DeleteDbAsync">Delete DB</button>
+
     @if (testItems != null)
     {
 		<ul>

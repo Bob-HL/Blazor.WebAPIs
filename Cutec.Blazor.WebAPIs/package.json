@@ -13,7 +13,7 @@
     "webpack": "^5.67.0"
   },
   "dependencies": {
-    "idb": "^6.1.2",
+    "idb": "^7.1.0",
     "ts-loader": "^9.2.3",
     "webpack-cli": "^4.7.2"
   }

@@ -7,6 +7,8 @@ This is a Blazor library for accessing APIs provided by web browser: IndexedDB, 
 3. Register services; ```builder.Services.AddBlazorWebAPIs();```. Alternatively, you can register the needed indivitial API, ex. ```builder.Services.AddWebStorage();```
  
 # IndexedDB APIs
+**Warning:** If Key/AutoIncrement definition is changed, the object store will be re-created and data will be lost.
+
 It is based on [idb](https://github.com/jakearchibald/idb).
 
 Inherit from ```IndexedDb```:

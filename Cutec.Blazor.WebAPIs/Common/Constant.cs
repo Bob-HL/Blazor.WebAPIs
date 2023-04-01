@@ -9,6 +9,7 @@
         public const string Prefix = "__cbw_";
         public readonly static string JsAgent = $"{Prefix}js_";
         internal readonly static string IndexedDbInitializer = $"{Prefix}idb.initIndexedDb";
+        internal readonly static string DeleteIndexedDb = $"{Prefix}idb.deleteIndexedDb";
         internal readonly static string IndexDbLoaded = $"{Prefix}idb_loaded";
         public readonly static string GeoLocation = $"{Prefix}geo";
         

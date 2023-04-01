@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Cutec.Blazor.WebAPIs
@@ -14,21 +14,37 @@ namespace Cutec.Blazor.WebAPIs
         private IndexedDbOptions options;
         private IJSRuntime js;
         private ILookup<Type, dynamic> typeProperties;
+        private bool isOpen;
 
         public IndexedDb()
         {
         }
 
         public int Version { get; protected set; }
+        public bool IsOpen { get { return isOpen; } }
 
         public async Task InitializeAsync(IndexedDbOptions options, IJSRuntime js)
         {
             this.options = options;
             this.js = js;
+            await OpenAsync();
+        }
 
-            Initialize();
+        public async Task OpenAsync()
+        {
+            if (!isOpen)
+            {
+                if (options == null || js == null)
+                {
+                    throw new InvalidOperationException("IndexedDb.InitializeAsync() must be called first.");
+                }
 
-            await js.InvokeVoidAsync(Constant.IndexedDbInitializer, options, DotNetObjectReference.Create(this));
+                Initialize();
+
+                var numberValue = await js.InvokeAsync<NumberValue>(Constant.IndexedDbInitializer, options, DotNetObjectReference.Create(this));
+                Version = numberValue.Value;
+                isOpen = true;
+            }
         }
 
         [JSInvokable("GetSchema")]
@@ -38,9 +54,8 @@ namespace Cutec.Blazor.WebAPIs
         }
 
         [JSInvokable("OnDbEvent")]
-        public void OnDbEvent(IndexedDbEvent dbEvent)
+        public virtual void OnDbEvent(IndexedDbEvent dbEvent, int currentVersion, int blockedVersion)
         {
-            //TODO:
         }
 
         public ObjectStore<T> Store<T>() where T: class
@@ -85,16 +100,23 @@ namespace Cutec.Blazor.WebAPIs
                     // Populate ObjectStore properties
                     var entityTypes = prop.PropertyType.GetGenericArguments();
                     var objectStoreType = objectStoreGenericType.MakeGenericType(entityTypes);
-                    var objectStore = Activator.CreateInstance(objectStoreType, prop.Name, js, options.IndexedDbAgentName);
-                    prop.SetValue(this, objectStore);
 
-                    typePropertieMaps.Add(Tuple.Create(entityTypes[0], objectStore));
+                    ObjectStoreSchema storeSchema;
 
                     if (generateSchema)
                     {
-                        var storeSchema = GetObjectStoreSchema(entityTypes[0], prop.Name);
+                        storeSchema = GetObjectStoreSchema(entityTypes[0], prop.Name);
                         options.Schema.Add(storeSchema);
                     }
+                    else
+                    {
+                        storeSchema = options.Schema.Where(x => x.Name == prop.Name).FirstOrDefault();
+                    }
+
+                    var objectStore = Activator.CreateInstance(objectStoreType, prop.Name, js, options.IndexedDbAgentName, storeSchema?.AutoKeyProp);
+                    prop.SetValue(this, objectStore);
+
+                    typePropertieMaps.Add(Tuple.Create(entityTypes[0], objectStore));
                 }
             }
 
@@ -113,20 +135,20 @@ namespace Cutec.Blazor.WebAPIs
             bool autoIncrement = autoIncrementAttributes.Count() > 0;
 
             var properties = objectStoreType.GetProperties();
-            string keyPath = null;
+            PropertyInfo keyProp = null;
             List<IndexSchema> indexes = null;
 
             for (int i = 0; i < properties.Length; i++)
             {
                 var property = properties[i];
 
-                if (string.IsNullOrEmpty(keyPath))
+                if (keyProp == null)
                 {
                     var keyAttributes = property.GetCustomAttributes(typeof(KeyAttribute), false);
 
                     if (keyAttributes.Length > 0)
                     {
-                        keyPath = property.Name;
+                        keyProp = property;
                     }
                 }
 
@@ -143,12 +165,12 @@ namespace Cutec.Blazor.WebAPIs
                 }
             }
 
-            if (string.IsNullOrEmpty(keyPath) && !autoIncrement)
+            if (keyProp == null && !autoIncrement)
             {
                 throw new Exception($"[Key] or [AutoIncrement] not found in type: {objectStoreType.Name}.");
             }
 
-            return new ObjectStoreSchema(name, keyPath?.ToCamelCase(), autoIncrement, indexes);
+            return new ObjectStoreSchema(name, keyProp, autoIncrement, indexes);
         }
 
         #endregion
@@ -165,6 +187,31 @@ namespace Cutec.Blazor.WebAPIs
                     await js.InvokeVoidAsync($"{options.IndexedDbAgentName}.clear", prop.Name);
                 }
             }
+        }
+
+        public async Task Close()
+        {
+            await js.InvokeVoidAsync($"{options.IndexedDbAgentName}.close");
+            isOpen = false;
+        }
+
+        /// <summary>
+        /// After deletion, a restart is needed to avoid this issue: https://github.com/learningequality/studio/issues/2094.
+        /// </summary>
+        /// <returns></returns>
+        public async Task DeleteAsync()
+        {
+            if (isOpen)
+            {
+                await Close();
+            }
+
+            await js.InvokeVoidAsync(Constant.DeleteIndexedDb, options, DotNetObjectReference.Create(this));
+        }
+
+        private class NumberValue
+        {
+            public int Value { get; set; }
         }
     }
 }
