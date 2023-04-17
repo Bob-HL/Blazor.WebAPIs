@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 
 namespace Cutec.Blazor.WebAPIs.WebAssemblyDemo.Pages
 {
-    public partial class Geolocation : ComponentBase
+    public partial class GeolocationDemo : ComponentBase
     {
-        [Inject] private WebAPIs.Geolocation geolocation { get; set; }
+        [Inject] private Geolocation geolocation { get; set; }
 
         private GeolocationPosition currentPosition;
         private GeolocationPosition position;

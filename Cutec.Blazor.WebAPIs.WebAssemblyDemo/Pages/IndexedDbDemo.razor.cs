@@ -1,14 +1,12 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Cutec.Blazor.WebAPIs.WebAssemblyDemo.Pages
 {
-    public partial class IndexedDb : ComponentBase
+    public partial class IndexedDbDemo : ComponentBase
     {
         [Inject] private DbContext db { get; set; }
         [Inject] private NavigationManager navigationManager { get; set; }
