@@ -58,9 +58,13 @@ var toDos = await db.ToDos.GetAllAsync();
 - ClearAsync
 - ClearDbAsync
 
-# LocalStorage
+# LocalStorage/SessionStorage
 Inject ```LocalStorage```:
 ```CSharp
+// add at startup
+builder.Services.AddSingleton(serviceProvider => (IJSInProcessRuntime)serviceProvider.GetRequiredService<IJSRuntime>())
+
+// inject into Blazor component
 [Inject] private LocalStorage localStorage { get; set; }
 ```
 

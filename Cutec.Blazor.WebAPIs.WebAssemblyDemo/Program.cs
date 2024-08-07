@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.JSInterop;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -17,7 +18,8 @@ namespace Cutec.Blazor.WebAPIs.WebAssemblyDemo
 
             builder.Services.AddGeolocation()
                 .AddWebStorage()
-                .AddIndexedDB<DbContext>();
+                .AddIndexedDB<DbContext>()
+                .AddSingleton(serviceProvider => (IJSInProcessRuntime)serviceProvider.GetRequiredService<IJSRuntime>());
             
             var host = builder.Build();
 

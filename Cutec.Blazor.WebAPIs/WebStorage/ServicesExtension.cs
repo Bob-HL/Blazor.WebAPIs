@@ -7,6 +7,7 @@ namespace Cutec.Blazor.WebAPIs
         public static IServiceCollection AddWebStorage(this IServiceCollection services)
         {
             services.AddSingleton<LocalStorage>();
+            services.AddSingleton<SessionStorage>();
             return services;
         }
     }

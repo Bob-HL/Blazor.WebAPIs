@@ -2,4 +2,15 @@
 
 <h3>Web Storage</h3>
 
-<b>TODO</b>
+<h4>SessionStorage</h4>
+
+<div class="p-2">
+    <label>Key</label>
+    <InputText @bind-Value="@sessionKey" class="form-control" />
+    <label>Value</label>
+    <InputText @bind-Value="@sessionValue" class="form-control" />
+</div>
+<div>
+    <button type="button" class="btn btn-primary" @onclick="SaveSessionValue">Save</button>
+    <button type="button" class="btn btn-primary ms-3" @onclick="GetSessionValue">Get</button>
+</div>
